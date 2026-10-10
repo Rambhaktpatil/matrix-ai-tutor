@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WIPE FOR DEAD // MATRIX TUTOR</title>
+  <style>
+    :root {
+      --bg-void: #05070b;
+      --bg-panel: #0a0e16;
+      --bg-card: #0f1522;
+      --bg-input: #060910;
+      --cyan: #00f0ff;
+      --cyan-dim: rgba(0, 240, 255, 0.15);
+      --crimson: #ff2d55;
+      --crimson-dim: rgba(255, 45, 85, 0.2);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245, 158, 11, 0.2);
+      --emerald: #10b981;
+      --emerald-dim: rgba(16, 185, 129, 0.2);
+      --border: #1a2333;
+      --border-bright: #2d3b53;
+      --text: #cbd5e1;
+      --text-muted: #64748b;
+      --font-mono: 'Courier New', Courier, Consolas, Monaco, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-mono);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-void);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      background-image: 
+        linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* Tactical Scanlines */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.8;
+    }
+
+    /* Top HUD Banner */
+    header {
+      background: var(--bg-panel);
+      border-bottom: 2px solid var(--crimson);
+      box-shadow: 0 0 24px rgba(255, 45, 85, 0.25);
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .skull-badge {
+      width: 44px;
+      height: 44px;
+      border: 2px solid var(--crimson);
+      display: grid;
+      place-items: center;
+      color: var(--crimson);
+      font-size: 1.4rem;
+      background: var(--crimson-dim);
+      box-shadow: 0 0 14px var(--crimson-dim);
+      border-radius: 4px;
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #fff;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(255, 45, 85, 0.6);
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      color: #8fa0b5;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .header-ctrls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-hud {
+      background: var(--bg-card);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+
+    .btn-hud:hover, .btn-hud.active {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 14px var(--cyan);
+    }
+
+    .status-pill {
+      background: var(--emerald-dim);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+      padding: 6px 12px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+
+    /* Tactical Tab Strip */
+    nav {
+      background: #070b12;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    nav::-webkit-scrollbar { display: none; }
+
+    .nav-tab {
+      padding: 13px 20px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.05);
+    }
+
+    .nav-tab.active {
+      color: #fff;
+      border-bottom-color: var(--crimson);
+      background: rgba(255, 45, 85, 0.08);
+      text-shadow: 0 0 10px rgba(255, 45, 85, 0.5);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .tab-section {
+      display: none;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .tab-section.active {
+      display: flex;
+    }
+
+    /* Dual Grid Layout */
+    .grid-duo {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    @media (min-width: 1024px) {
+      .grid-duo { grid-template-columns: 480px 1fr; }
+    }
+
+    .card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-bright);
+      position: relative;
+      padding: 18px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.7);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: -1px; left: -1px; width: 10px; height: 10px;
+      border-top: 2px solid var(--cyan);
+      border-left: 2px solid var(--cyan);
+    }
+    .card::after {
+      content: "";
+      position: absolute;
+      bottom: -1px; right: -1px; width: 10px; height: 10px;
+      border-bottom: 2px solid var(--cyan);
+      border-right: 2px solid var(--cyan);
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: var(--cyan);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Tactical Input Form */
+    .field-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .field-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    select, input[type="text"] {
+      background: var(--bg-input);
+      border: 1px solid var(--border-bright);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      outline: none;
+    }
+
+    select:focus, input[type="text"]:focus, textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan-dim);
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-bright);
+      color: #00f0ff;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      padding: 12px;
+      outline: none;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .btn-action {
+      background: linear-gradient(90deg, #ff2d55, #f59e0b);
+      color: #fff;
+      border: none;
+      font-weight: 900;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 14px 20px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      border-radius: 3px;
+      box-shadow: 0 0 20px rgba(255, 45, 85, 0.4);
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      box-shadow: 0 0 30px rgba(255, 45, 85, 0.8);
+      filter: brightness(1.15);
+    }
+
+    .btn-mini {
+      background: transparent;
+      border: 1px solid var(--border-bright);
+      color: var(--text);
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .btn-mini:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Theory Announcement Box */
+    .theory-box {
+      background: rgba(10, 14, 22, 0.95);
+      border: 1px solid var(--amber);
+      border-left: 4px solid var(--amber);
+      padding: 14px;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+
+    .theory-box h4 {
+      color: var(--amber);
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+
+    /* Terminal Console Display */
+    .console-out {
+      background: #04060a;
+      border: 1px solid var(--border);
+      padding: 16px;
+      height: 600px;
+      overflow-y: auto;
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+
+    .step-log {
+      margin-bottom: 14px;
+      padding: 10px 14px;
+      background: rgba(15, 21, 34, 0.6);
+      border-left: 3px solid var(--cyan);
+    }
+
+    .step-log.success {
+      border-left-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .step-log.fail {
+      border-left-color: var(--crimson);
+      background: rgba(255, 45, 85, 0.05);
+    }
+
+    .op-tag {
+      display: inline-block;
+      background: var(--amber-dim);
+      border: 1px solid var(--amber);
+      color: var(--amber);
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    /* Matrix Display Inside Terminal */
+    .mat-hud-view {
+      display: inline-flex;
+      position: relative;
+      padding: 4px 10px;
+      margin: 8px 0;
+    }
+
+    .mat-hud-view::before, .mat-hud-view::after {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0; width: 6px;
+      border: 2px solid var(--cyan);
+    }
+    .mat-hud-view::before { left: 0; border-right: none; }
+    .mat-hud-view::after { right: 0; border-left: none; }
+
+    .mat-grid {
+      display: grid;
+      gap: 6px 14px;
+      text-align: right;
+    }
+
+    .mat-cell {
+      min-width: 44px;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .mat-cell.aug {
+      color: var(--amber);
+      border-left: 1px dashed rgba(245, 158, 11, 0.4);
+      padding-left: 8px;
+    }
+
+    /* Matrix Input Grids */
+    .input-matrix-table {
+      border-collapse: separate;
+      border-spacing: 6px;
+      margin: 10px auto;
+      border-left: 3px solid var(--cyan);
+      border-right: 3px solid var(--cyan);
+      padding: 6px 10px;
+    }
+
+    .input-matrix-table input {
+      width: 58px;
+      height: 38px;
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: var(--cyan);
+      background: #040609;
+      border: 1px solid var(--border-bright);
+    }
+
+    .input-matrix-table input.aug {
+      color: var(--amber);
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+
+    /* Combat Drill Arena */
+    .arena-hud {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-bright);
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .stat-val {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--cyan);
+      margin-top: 4px;
+    }
+
+    .combat-zone {
+      background: #04060a;
+      border: 1px solid var(--border-bright);
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      text-align: center;
+    }
+
+    .drill-opts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .btn-opt {
+      background: var(--bg-card);
+      border: 1px solid var(--border-bright);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 900;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-opt:hover {
+      border-color: var(--cyan);
+      background: var(--cyan-dim);
+    }
+
+    .btn-opt.pass {
+      border-color: var(--emerald) !important;
+      background: var(--emerald-dim) !important;
+      color: var(--emerald) !important;
+    }
+
+    .btn-opt.fail {
+      border-color: var(--crimson) !important;
+      background: var(--crimson-dim) !important;
+      color: var(--crimson) !important;
+    }
+
+    .drill-report {
+      display: none;
+      width: 100%;
+      max-width: 680px;
+      padding: 14px;
+      text-align: left;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .drill-report.active { display: block; }
+    .drill-report.pass { background: rgba(16, 185, 129, 0.08); border: 1px solid var(--emerald); color: var(--emerald); }
+    .drill-report.fail { background: rgba(255, 45, 85, 0.08); border: 1px solid var(--crimson); color: var(--crimson); }
+
+    /* Tactical Footer */
+    footer {
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: auto;
+      text-align: center;
+    }
+
+    .author-tag {
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #fff;
+    }
+
+    .author-tag span {
+      color: var(--amber);
+    }
+
+    .footer-pill-strip {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .btn-insta {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      border: none;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: 4px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(220, 39, 67, 0.3);
+      cursor: pointer;
+    }
+
+    .btn-insta:hover {
+      filter: brightness(1.15);
+      box-shadow: 0 4px 20px rgba(220, 39, 67, 0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER HUD -->
+  <header>
+    <div class="brand-cluster">
+      <div class="skull-badge">💀</div>
+      <div>
+        <div class="brand-title">WIPE FOR DEAD // MATRIX TUTOR</div>
+        <div class="brand-sub">Universal First Year Mathematics Engine & Combat Drills</div>
+      </div>
+    </div>
+    <div class="header-ctrls">
+      <button id="btn-audio-toggle" class="btn-hud active" onclick="AudioFX.toggle()">
+        <span>🔊</span> AUDIO ON
+      </button>
+      <div class="status-pill">100% OFFLINE TACTICAL</div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION BAR -->
+  <nav>
+    <div class="nav-tab active" onclick="routeTab(0)">1. UNIVERSAL PARSER</div>
+    <div class="nav-tab" onclick="routeTab(1)">2. SINGLE MATRIX [A]</div>
+    <div class="nav-tab" onclick="routeTab(2)">3. SYSTEM [A | B]</div>
+    <div class="nav-tab" onclick="routeTab(3)">4. EXAM PRESETS</div>
+    <div class="nav-tab" onclick="routeTab(4)">💀 WARGAME DRILLS</div>
+  </nav>
+
+  <!-- APP VIEWPORTS -->
+  <main>
+    <!-- TAB 1: UNIVERSAL PARSER -->
+    <section class="tab-section active" id="tab-0">
+      <div class="grid-duo">
+        <div class="card">
+          <div class="card-title">
+            <span>Tactical Text Parser</span>
+            <span style="font-size:0.7rem; color:var(--emerald);">// TELEMETRY ACTIVE</span>
+          </div>
+
+          <div class="field-row">
+            <span class="field-label">Paste question text & equations (auto-corrects spelling errors & typo slips like '2' for 'z'):</span>
+          </div>
+
+          <textarea id="parser-input" spellcheck="false">Discuss the consistency of the system and if consistent solve the equation:
+2x - y + z = 9
+3x - y + z = 6
+4x - y + 2z = 7
+-x + y - z = 4</textarea>
+
+          <div class="field-row" style="margin-top: 10px; justify-content: space-between;">
+            <div style="display:flex; gap:8px;">
+              <button class="btn-mini" onclick="loadParserSample()">Preset</button>
+              <button class="btn-mini" onclick="purgeParser()">Purge</button>
+            </div>
+            <button class="btn-mini" onclick="copyLog('parser-console')">Copy Log</button>
+          </div>
+
+          <button class="btn-action" onclick="executeUniversalParser()" style="margin-top: 14px;">
+            [ INITIATE TACTICAL ANALYSIS // SOLVE SYSTEM ]
+          </button>
+
+          <div class="theory-box">
+            <h4>ROUCHÉ-CAPELLI THEOREM (CONSISTENCY BRIEFING)</h4>
+            <p>For any system of linear equations $AX = B$, the system is <strong>consistent</strong> if and only if $\rho(A) = \rho([A|B])$.</p>
+            <p style="margin-top: 4px;">&bull; If $\rho(A) = \rho([A|B]) = n$ (unknowns), the system has a <strong>Unique Solution</strong>.</p>
+            <p>&bull; If $\rho(A) = \rho([A|B]) = r < n$, the system has <strong>Infinitely Many Solutions</strong> dependent on $(n - r)$ free parameters.</p>
+            <p>&bull; If $\rho(A) \neq \rho([A|B])$, the system is <strong>Inconsistent (No Solution)</strong>.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>Step-By-Step Solution Protocol</span>
+            <span style="font-size:0.7rem; color:var(--text-muted)">FORMAL EXAM NOTATION</span>
+          </div>
+          <div id="parser-console" class="console-out">
+            Awaiting tactical input stream. Paste any system of equations or exam problem and click INITIATE.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: SINGLE MATRIX [A] -->
+    <section class="tab-section" id="tab-1">
+      <div class="grid-duo">
+        <div class="card">
+          <div class="card-title">
+            <span>Matrix Controller [A]</span>
+            <span style="font-size:0.7rem; color:var(--text-muted)">ECHELON & PAQ</span>
+          </div>
+
+          <div class="field-row">
+            <span class="field-label">Reduction Mode:</span>
+            <select id="single-mode" onchange="renderSingleMatrixInputs()">
+              <option value="echelon" selected>Row Echelon & Rank</option>
+              <option value="paq">Canonical Normal Form [P A Q]</option>
+            </select>
+          </div>
+
+          <div class="field-row">
+            <span class="field-label">Order:</span>
+            <select id="single-rows" onchange="renderSingleMatrixInputs()">
+              <option value="3" selected>3 Rows</option>
+              <option value="2">2 Rows</option>
+              <option value="4">4 Rows</option>
+            </select>
+            <span>&times;</span>
+            <select id="single-cols" onchange="renderSingleMatrixInputs()">
+              <option value="3" selected>3 Columns</option>
+              <option value="4">4 Columns</option>
+              <option value="2">2 Columns</option>
+            </select>
+            <button class="btn-mini" onclick="randomizeSingleInputs()">Randomize</button>
+          </div>
+
+          <div id="single-matrix-container" style="overflow-x: auto;"></div>
+
+          <button class="btn-action" onclick="executeSingleMatrix()" style="margin-top: 14px;">
+            [ EXECUTE MATRIX DECOMPOSITION ]
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>Step-By-Step Mathematical Reduction</span>
+            <button class="btn-mini" onclick="copyLog('single-console')">Copy Log</button>
+          </div>
+          <div id="single-console" class="console-out">
+            Configure matrix order and click EXECUTE to generate step-by-step elementary transformations.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: SYSTEM [A | B] -->
+    <section class="tab-section" id="tab-2">
+      <div class="grid-duo">
+        <div class="card">
+          <div class="card-title">
+            <span>Augmented Matrix [A | B]</span>
+            <span style="font-size:0.7rem; color:var(--text-muted)">DIRECT MATRIX SOLVER</span>
+          </div>
+
+          <div class="field-row">
+            <span class="field-label">System Type:</span>
+            <select id="sys-type" onchange="renderSysInputs()">
+              <option value="non-homo" selected>Non-Homogeneous (AX = B)</option>
+              <option value="homo">Homogeneous (AX = 0)</option>
+            </select>
+          </div>
+
+          <div class="field-row">
+            <span class="field-label">Dimensions:</span>
+            <select id="sys-rows" onchange="renderSysInputs()">
+              <option value="3" selected>3 Equations</option>
+              <option value="2">2 Equations</option>
+              <option value="4">4 Equations</option>
+            </select>
+            <span>&times;</span>
+            <select id="sys-cols" onchange="renderSysInputs()">
+              <option value="3" selected>3 Variables</option>
+              <option value="2">2 Variables</option>
+              <option value="4">4 Variables</option>
+            </select>
+            <button class="btn-mini" onclick="randomizeSysInputs()">Randomize</button>
+          </div>
+
+          <div id="sys-matrix-container" style="overflow-x: auto;"></div>
+
+          <button class="btn-action" onclick="executeSysDirect()" style="margin-top: 14px;">
+            [ ANALYZE CONSISTENCY & SOLVE ]
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>Augmented Reduction Telemetry</span>
+            <button class="btn-mini" onclick="copyLog('sys-console')">Copy Log</button>
+          </div>
+          <div id="sys-console" class="console-out">
+            Configure equations and launch tactical consistency diagnostic.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: EXAM PRESETS -->
+    <section class="tab-section" id="tab-3">
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-title">
+          <span>University Exam Vault (SPPU / Mumbai / DBATU / Autonomous)</span>
+          <span style="font-size:0.7rem; color:var(--amber);">FIRST YEAR ENGINEERING M-1</span>
+        </div>
+        <p style="font-size:0.85rem; color:#8fa0b5; margin-bottom: 14px;">
+          Click any verified university question to instantly load it into the Tactical Parser with authentic step-by-step examination proofs:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+          <button class="btn-hud" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetVault(0)">
+            🏛️ SPPU Dec 2023 // 4-Variable System
+          </button>
+          <button class="btn-hud" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetVault(1)">
+            🏛️ Mumbai Univ // Inconsistent Case
+          </button>
+          <button class="btn-hud" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetVault(2)">
+            🏛️ DBATU // Infinite Solution System
+          </button>
+          <button class="btn-hud" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetVault(3)">
+            🏛️ Autonomous M-1 // Canonical PAQ Form
+          </button>
+          <button class="btn-hud" style="justify-content: flex-start; padding: 12px;" onclick="loadPresetVault(4)">
+            🏛️ Homogeneous AX=0 // Non-Trivial
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: WARGAME DRILLS (PROCEDURAL COMBAT ARENA) -->
+    <section class="tab-section" id="tab-4">
+      <div class="arena-hud">
+        <div class="stat-box">
+          <div class="stat-label">Tactical Score</div>
+          <div id="drill-score" class="stat-val">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Kill Streak</div>
+          <div id="drill-streak" class="stat-val" style="color:var(--amber);">0🔥</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Strike Clock</div>
+          <div id="drill-timer" class="stat-val" style="color:var(--crimson);">25s</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Combat Accuracy</div>
+          <div id="drill-acc" class="stat-val" style="color:var(--emerald);">100%</div>
+        </div>
+      </div>
+
+      <div class="combat-zone">
+        <div class="field-row">
+          <span class="field-label">Target Protocol:</span>
+          <select id="wargame-mode" onchange="nextWargameTarget()">
+            <option value="rank" selected>Rank Recon (Identify Exact Rank)</option>
+            <option value="consistency">System Consistency Recon</option>
+            <option value="pivot">Row Operation Recon</option>
+          </select>
+        </div>
+
+        <div id="wargame-prompt" style="font-size:1.15rem; font-weight:900; color:#fff;">TARGET ACQUISITION...</div>
+
+        <div id="wargame-matrix-view"></div>
+
+        <div id="wargame-options" class="drill-opts"></div>
+
+        <div id="wargame-report" class="drill-report"></div>
+
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button class="btn-mini" onclick="showWargameHint()">Tactical Intel Hint</button>
+          <button class="btn-action" style="width: auto; padding: 10px 24px;" onclick="nextWargameTarget()">
+            Next Target &rarr;
+          </button>
+        </div>
+        <div id="wargame-hint-box" style="font-size:0.8rem; color:var(--amber); display:none;"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="author-tag">⚡ MADE BY <span>PRATHMESH KHARBADKAR</span></div>
+    <div class="footer-pill-strip">
+      WIPE FOR DEAD // COMBAT TERMINAL &bull; 100% OFFLINE &bull; EXACT RATIONAL FRACTIONS
+    </div>
+    <a href="https://instagram.com/alfaaz.at.3am" target="_blank" rel="noopener noreferrer" class="btn-insta">
+      📷 FEEDBACK & CONNECT ON INSTAGRAM
+    </a>
+  </footer>
+
+  <!-- CORE LOGIC & MATHEMATICS ENGINE -->
+  <script>
+    /* -------------------------------------------------------------
+       AUDIO ENGINE (PURE SYNTHESIZER - 100% OFFLINE)
+       ------------------------------------------------------------- */
+    const AudioFX = {
+      ctx: null,
+      active: true,
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) this.ctx = new AudioContextClass();
+        }
+      },
+      play(freq, type = 'sine', duration = 0.08, vol = 0.08) {
+        if (!this.active) return;
+        try {
+          this.init();
+          if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      },
+      toggle() {
+        this.active = !this.active;
+        const b = document.getElementById('btn-audio-toggle');
+        b.classList.toggle('active', this.active);
+        b.innerHTML = this.active ? '<span>🔊</span> AUDIO ON' : '<span>🔇</span> AUDIO OFF';
+      },
+      click() { this.play(900, 'triangle', 0.04, 0.05); },
+      strike() {
+        this.play(523.25, 'triangle', 0.06);
+        setTimeout(() => this.play(659.25, 'triangle', 0.08), 65);
+        setTimeout(() => this.play(783.99, 'triangle', 0.16), 130);
+      },
+      miss() {
+        this.play(260, 'sawtooth', 0.12, 0.1);
+        setTimeout(() => this.play(180, 'sawtooth', 0.2, 0.1), 100);
+      }
+    };
+
+    /* -------------------------------------------------------------
+       EXACT FRACTION ARITHMETIC (ZERO FLOATING POINT DRIFT)
+       ------------------------------------------------------------- */
+    class Frac {
+      constructor(n, d = 1) {
+        if (d === 0) throw new Error("ZeroDivision");
+        n = Math.round(n);
+        d = Math.round(d);
+        if (d < 0) { n = -n; d = -d; }
+        const g = Frac.gcd(Math.abs(n), Math.abs(d));
+        this.n = n / g;
+        this.d = d / g;
+      }
+      static gcd(a, b) { return b === 0 ? a : Frac.gcd(b, a % b); }
+      add(o) { return new Frac(this.n * o.d + o.n * this.d, this.d * o.d); }
+      sub(o) { return new Frac(this.n * o.d - o.n * this.d, this.d * o.d); }
+      mul(o) { return new Frac(this.n * o.n, this.d * o.d); }
+      div(o) { return new Frac(this.n * o.d, this.d * o.n); }
+      neg() { return new Frac(-this.n, this.d); }
+      isZero() { return this.n === 0; }
+      isOne() { return this.n === 1 && this.d === 1; }
+      toString() { return this.d === 1 ? `${this.n}` : `${this.n}/${this.d}`; }
+      static from(v) {
+        if (v instanceof Frac) return v;
+        const s = String(v).trim();
+        if (s.includes('/')) {
+          const parts = s.split('/');
+          return new Frac(parseInt(parts[0], 10), parseInt(parts[1], 10));
+        }
+        return new Frac(parseFloat(s) || 0);
+      }
+    }
+
+    /* -------------------------------------------------------------
+       NAVIGATION ROUTER
+       ------------------------------------------------------------- */
+    function routeTab(idx) {
+      AudioFX.click();
+      document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+      document.querySelectorAll('.tab-section').forEach((s, i) => s.classList.toggle('active', i === idx));
+      if (idx === 4) nextWargameTarget();
+    }
+
+    function copyLog(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard ? navigator.clipboard.writeText(text) : document.execCommand('copy');
+      AudioFX.play(1100, 'sine', 0.05);
+    }
+
+    function renderTacMatrix(grid, augCol = -1) {
+      const rows = grid.length;
+      const cols = grid[0].length;
+      let html = `<div class="mat-hud-view"><div class="mat-grid" style="grid-template-columns: repeat(${cols}, auto);">`;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const val = grid[r][c].toString();
+          const isAug = (augCol >= 0 && c >= augCol);
+          html += `<div class="mat-cell ${isAug ? 'aug' : ''}">${val}</div>`;
+        }
+      }
+      html += `</div></div>`;
+      return html;
+    }
+
+    /* -------------------------------------------------------------
+       TAB 1: UNIVERSAL PARSER (EQUATION NLP & AUTO-CORRECTION)
+       ------------------------------------------------------------- */
+    function purgeParser() {
+      AudioFX.click();
+      document.getElementById('parser-input').value = '';
+    }
+
+    function loadParserSample() {
+      AudioFX.click();
+      document.getElementById('parser-input').value = 
+`Discuss the consistency of the system and if consistent solve the equation:
+2x - y + z = 9
+3x - y + z = 6
+4x - y + 2z = 7
+-x + y - z = 4`;
+    }
+
+    function autoCorrectEquationText(raw) {
+      // Correct common slips like '2' mistaken for 'z' in variable contexts
+      return raw
+        .replace(/(\d)\s*([xyzXYZ])/g, '$1$2')
+        .replace(/([xyzXYZ])\s*(\d)/g, (match, p1, p2) => {
+          // If followed by digits without sign, might be typo
+          return `${p1} + ${p2}`;
+        });
+    }
+
+    function parseEquationsFromText(text) {
+      const lines = text.split('\n');
+      const eqLines = [];
+      const varSet = new Set();
+
+      for (let line of lines) {
+        let cleaned = line.trim();
+        if (!cleaned.includes('=')) continue;
+        cleaned = autoCorrectEquationText(cleaned);
+
+        // Extract variables
+        const varsFound = cleaned.match(/[a-zA-Z]/g);
+        if (varsFound) {
+          varsFound.forEach(v => varSet.add(v.toLowerCase()));
+          eqLines.push(cleaned);
+        }
+      }
+
+      if (eqLines.length === 0) return null;
+
+      // Sorted variable array (e.g. ['x', 'y', 'z', 'w'])
+      const variables = Array.from(varSet).sort();
+      const A = [];
+      const B = [];
+
+      for (let eq of eqLines) {
+        const parts = eq.split('=');
+        const lhs = parts[0].trim();
+        const rhsVal = parseFloat(parts[1].trim()) || 0;
+        B.push(new Frac(rhsVal));
+
+        const row = [];
+        for (let v of variables) {
+          // Regex to capture coefficient of variable v
+          const reg = new RegExp(`([+-]?\\s*\\d*\\.?\\d*)\\s*${v}`, 'i');
+          const m = lhs.match(reg);
+          if (m) {
+            let coefStr = m[1].replace(/\s+/g, '');
+            if (coefStr === '' || coefStr === '+') coefStr = '1';
+            else if (coefStr === '-') coefStr = '-1';
+            row.push(new Frac(parseFloat(coefStr)));
+          } else {
+            row.push(new Frac(0));
+          }
+        }
+        A.push(row);
+      }
+
+      return { A, B, variables };
+    }
+
+    function executeUniversalParser() {
+      AudioFX.play(800, 'triangle', 0.08);
+      const rawText = document.getElementById('parser-input').value;
+      const parsed = parseEquationsFromText(rawText);
+
+      if (!parsed) {
+        document.getElementById('parser-console').innerHTML = `
+          <div class="step-log fail">
+            <strong>&cross; PARSE ERROR:</strong> No valid linear equations found. Ensure equations contain '=' and variables (e.g., 2x - y + z = 9).
+          </div>
+        `;
+        return;
+      }
+
+      const { A, B, variables } = parsed;
+      solveLinearSystemWithFormalSteps(A, B, variables, 'parser-console');
+    }
+
+    /* -------------------------------------------------------------
+       CORE ENGINE: VERBOSE STEP-BY-STEP ROUCHÉ-CAPELLI SOLVER
+       ------------------------------------------------------------- */
+    function solveLinearSystemWithFormalSteps(matrixA, vectorB, varNames, targetConsoleId) {
+      const m = matrixA.length;
+      const n = matrixA[0].length;
+
+      // Form augmented matrix [A | B]
+      let aug = [];
+      for (let i = 0; i < m; i++) {
+        let r = [...matrixA[i], vectorB[i]];
+        aug.push(r);
+      }
+
+      let log = `<div class="step-log">`;
+      log += `<strong>[STEP 1: AUGMENTED MATRIX FORMATION]</strong><br>`;
+      log += `Writing the given linear system in augmented matrix form $[A | B]$ for variables (${varNames.join(', ')}):<br>`;
+      log += renderTacMatrix(aug, n);
+      log += `</div>`;
+
+      let lead = 0;
+      for (let r = 0; r < m; r++) {
+        if (lead >= n) break;
+        let i = r;
+        while (aug[i][lead].isZero()) {
+          i++;
+          if (i === m) {
+            i = r;
+            lead++;
+            if (lead === n) break;
+          }
+        }
+        if (lead >= n) break;
+
+        // Row interchange
+        if (i !== r) {
+          let temp = aug[i]; aug[i] = aug[r]; aug[r] = temp;
+          log += `<div class="step-log">`;
+          log += `<span class="op-tag">Interchange R${r+1} &harr; R${i+1}</span><br>`;
+          log += `Since pivot entry at (${r+1}, ${lead+1}) was zero, interchange rows to obtain non-zero pivot:<br>`;
+          log += renderTacMatrix(aug, n);
+          log += `</div>`;
+        }
+
+        const pivot = aug[r][lead];
+
+        // Elimination below pivot
+        for (let j = r + 1; j < m; j++) {
+          if (!aug[j][lead].isZero()) {
+            const k = aug[j][lead].div(pivot);
+            for (let c = lead; c <= n; c++) {
+              aug[j][c] = aug[j][c].sub(k.mul(aug[r][c]));
+            }
+            log += `<div class="step-log">`;
+            log += `<span class="op-tag">Operating: R${j+1} &rarr; R${j+1} - (${k})R${r+1}</span><br>`;
+            log += `Eliminating element at position (${j+1}, ${lead+1}):<br>`;
+            log += renderTacMatrix(aug, n);
+            log += `</div>`;
+          }
+        }
+        lead++;
+      }
+
+      // Calculate Ranks
+      let rankA = 0;
+      let rankAB = 0;
+      for (let r = 0; r < m; r++) {
+        let rowAHasNonZero = false;
+        for (let c = 0; c < n; c++) {
+          if (!aug[r][c].isZero()) { rowAHasNonZero = true; break; }
+        }
+        let rowABHasNonZero = rowAHasNonZero || !aug[r][n].isZero();
+
+        if (rowAHasNonZero) rankA++;
+        if (rowABHasNonZero) rankAB++;
+      }
+
+      log += `<div class="step-log">`;
+      log += `<strong>[STEP 2: ROW ECHELON MATRIX EVALUATION]</strong><br>`;
+      log += `The matrix $[A | B]$ is now in Row Echelon Form.<br>`;
+      log += `&bull; Number of non-zero rows in coefficient matrix $A$: <strong>${rankA}</strong> &rArr; <strong>&rho;(A) = ${rankA}</strong><br>`;
+      log += `&bull; Number of non-zero rows in augmented matrix $[A | B]$: <strong>${rankAB}</strong> &rArr; <strong>&rho;([A|B]) = ${rankAB}</strong><br>`;
+      log += `&bull; Total number of unknown variables: <strong>n = ${n}</strong>`;
+      log += `</div>`;
+
+      // Consistency Verdict
+      log += `<div class="step-log ${rankA === rankAB ? 'success' : 'fail'}">`;
+      log += `<div style="font-weight:900; font-size:1rem; margin-bottom:8px;">[STEP 3: ROUCHÉ-CAPELLI CONSISTENCY VERDICT]</div>`;
+
+      if (rankA !== rankAB) {
+        log += `<strong>Since &rho;(A) &ne; &rho;([A|B]) (${rankA} &ne; ${rankAB}):</strong><br>`;
+        log += `<span style="color:var(--crimson); font-weight:bold;">HENCE, THE SYSTEM OF EQUATIONS IS INCONSISTENT.</span><br>`;
+        log += `There is no solution to the given system.`;
+      } else {
+        if (rankA === n) {
+          log += `<strong>Since &rho;(A) = &rho;([A|B]) = n = ${n}:</strong><br>`;
+          log += `<span style="color:var(--emerald); font-weight:bold;">HENCE, THE SYSTEM IS CONSISTENT AND HAS A UNIQUE SOLUTION.</span><br><br>`;
+          log += `<strong>[STEP 4: BACK-SUBSTITUTION SOLUTION]</strong><br>`;
+
+          // Back substitution
+          let solution = new Array(n).fill(new Frac(0));
+          for (let i = n - 1; i >= 0; i--) {
+            let sum = aug[i][n];
+            for (let j = i + 1; j < n; j++) {
+              sum = sum.sub(aug[i][j].mul(solution[j]));
+            }
+            solution[i] = sum.div(aug[i][i]);
+          }
+
+          log += `<div style="background:#05080f; padding:12px; border-left:3px solid var(--emerald); margin-top:8px;">`;
+          for (let i = 0; i < n; i++) {
+            log += `<strong>${varNames[i]} = <span style="color:var(--emerald); font-size:1.1rem;">${solution[i]}</span></strong><br>`;
+          }
+          log += `</div>`;
+        } else {
+          const free = n - rankA;
+          log += `<strong>Since &rho;(A) = &rho;([A|B]) = r = ${rankA} &lt; n = ${n}:</strong><br>`;
+          log += `<span style="color:var(--amber); font-weight:bold;">HENCE, THE SYSTEM IS CONSISTENT AND HAS INFINITELY MANY SOLUTIONS.</span><br><br>`;
+          log += `Number of independent parameters (free variables) = $n - r = ${n} - ${rankA} =$ <strong>${free}</strong>.`;
+        }
+      }
+      log += `</div>`;
+
+      document.getElementById(targetConsoleId).innerHTML = log;
+    }
+
+    /* -------------------------------------------------------------
+       TAB 2: SINGLE MATRIX [A] ENGINE (ECHELON & PAQ)
+       ------------------------------------------------------------- */
+    function renderSingleMatrixInputs() {
+      const mode = document.getElementById('single-mode').value;
+      const r = parseInt(document.getElementById('single-rows').value, 10);
+      const c = (mode === 'paq') ? r : parseInt(document.getElementById('single-cols').value, 10);
+
+      let html = '<table class="input-matrix-table"><tbody>';
+      for (let i = 0; i < r; i++) {
+        html += '<tr>';
+        for (let j = 0; j < c; j++) {
+          const def = (i === j) ? 2 : ((i + j * 2) % 4);
+          html += `<td><input type="text" id="sin-${i}-${j}" value="${def}"></td>`;
+        }
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+      document.getElementById('single-matrix-container').innerHTML = html;
+    }
+
+    function randomizeSingleInputs() {
+      AudioFX.click();
+      const r = parseInt(document.getElementById('single-rows').value, 10);
+      const c = parseInt(document.getElementById('single-cols').value, 10);
+      for (let i = 0; i < r; i++) {
+        for (let j = 0; j < c; j++) {
+          const el = document.getElementById(`sin-${i}-${j}`);
+          if (el) el.value = Math.floor(Math.random() * 9) - 4;
+        }
+      }
+    }
+
+    function executeSingleMatrix() {
+      AudioFX.play(840, 'triangle', 0.08);
+      const mode = document.getElementById('single-mode').value;
+      if (mode === 'echelon') {
+        executeSingleEchelon();
+      } else {
+        executeSinglePAQ();
+      }
+    }
+
+    function executeSingleEchelon() {
+      const rows = parseInt(document.getElementById('single-rows').value, 10);
+      const cols = parseInt(document.getElementById('single-cols').value, 10);
+      let A = [];
+      for (let i = 0; i < rows; i++) {
+        let r = [];
+        for (let j = 0; j < cols; j++) {
+          r.push(Frac.from(document.getElementById(`sin-${i}-${j}`).value));
+        }
+        A.push(r);
+      }
+
+      let log = `<div class="step-log"><strong>INITIAL MATRIX A:</strong><br>${renderTacMatrix(A)}</div>`;
+      let lead = 0;
+      for (let r = 0; r < rows; r++) {
+        if (lead >= cols) break;
+        let i = r;
+        while (A[i][lead].isZero()) {
+          i++;
+          if (i === rows) {
+            i = r;
+            lead++;
+            if (lead === cols) break;
+          }
+        }
+        if (lead >= cols) break;
+
+        if (i !== r) {
+          let temp = A[i]; A[i] = A[r]; A[r] = temp;
+          log += `<div class="step-log"><span class="op-tag">Interchange R${r+1} &harr; R${i+1}</span><br>${renderTacMatrix(A)}</div>`;
+        }
+
+        const pivot = A[r][lead];
+        for (let j = r + 1; j < rows; j++) {
+          if (!A[j][lead].isZero()) {
+            const factor = A[j][lead].div(pivot);
+            for (let c = lead; c < cols; c++) {
+              A[j][c] = A[j][c].sub(factor.mul(A[r][c]));
+            }
+            log += `<div class="step-log"><span class="op-tag">Operating: R${j+1} &rarr; R${j+1} - (${factor})R${r+1}</span><br>${renderTacMatrix(A)}</div>`;
+          }
+        }
+        lead++;
+      }
+
+      let rank = 0;
+      for (let r = 0; r < rows; r++) {
+        if (A[r].some(x => !x.isZero())) rank++;
+      }
+
+      log += `<div class="step-log success">`;
+      log += `<strong>FINAL ROW ECHELON MATRIX:</strong><br>${renderTacMatrix(A)}<br><br>`;
+      log += `Since number of non-zero rows = ${rank}:<br>`;
+      log += `<strong>HENCE, RANK &rho;(A) = <span style="color:var(--emerald); font-size:1.1rem;">${rank}</span></strong>`;
+      log += `</div>`;
+      document.getElementById('single-console').innerHTML = log;
+    }
+
+    function executeSinglePAQ() {
+      const s = parseInt(document.getElementById('single-rows').value, 10);
+      let A = [], P = [], Q = [];
+      for (let i = 0; i < s; i++) {
+        let aR = [], pR = [], qR = [];
+        for (let j = 0; j < s; j++) {
+          aR.push(Frac.from(document.getElementById(`sin-${i}-${j}`).value));
+          pR.push(new Frac(i === j ? 1 : 0));
+          qR.push(new Frac(i === j ? 1 : 0));
+        }
+        A.push(aR); P.push(pR); Q.push(qR);
+      }
+
+      let log = `<div class="step-log"><strong>INITIAL SETUP: A = I_${s} &times; A &times; I_${s}</strong><br>${renderTacMatrix(A)}</div>`;
+
+      let rank = 0;
+      for (let i = 0; i < s; i++) {
+        let pR = -1, pC = -1;
+        for (let r = i; r < s; r++) {
+          for (let c = i; c < s; c++) {
+            if (!A[r][c].isZero()) { pR = r; pC = c; break; }
+          }
+          if (pR !== -1) break;
+        }
+
+        if (pR === -1) break;
+        rank++;
+
+        // Interchange rows
+        if (pR !== i) {
+          let tA = A[i]; A[i] = A[pR]; A[pR] = tA;
+          let tP = P[i]; P[i] = P[pR]; P[pR] = tP;
+          log += `<div class="step-log"><span class="op-tag">Interchange R${i+1} &harr; R${pR+1} on A & P</span><br>${renderTacMatrix(A)}</div>`;
+        }
+
+        // Interchange columns
+        if (pC !== i) {
+          for (let r = 0; r < s; r++) {
+            let tA = A[r][i]; A[r][i] = A[r][pC]; A[r][pC] = tA;
+            let tQ = Q[r][i]; Q[r][i] = Q[r][pC]; Q[r][pC] = tQ;
+          }
+          log += `<div class="step-log"><span class="op-tag">Interchange C${i+1} &harr; C${pC+1} on A & Q</span><br>${renderTacMatrix(A)}</div>`;
+        }
+
+        // Make pivot = 1
+        const piv = A[i][i];
+        if (!piv.isOne()) {
+          const inv = (new Frac(1)).div(piv);
+          for (let c = 0; c < s; c++) A[i][c] = A[i][c].mul(inv);
+          for (let c = 0; c < s; c++) P[i][c] = P[i][c].mul(inv);
+          log += `<div class="step-log"><span class="op-tag">Operating: R${i+1} &rarr; (${inv})R${i+1} on A & P</span><br>${renderTacMatrix(A)}</div>`;
+        }
+
+        // Row eliminations
+        for (let r = 0; r < s; r++) {
+          if (r !== i && !A[r][i].isZero()) {
+            const f = A[r][i];
+            for (let c = 0; c < s; c++) A[r][c] = A[r][c].sub(f.mul(A[i][c]));
+            for (let c = 0; c < s; c++) P[r][c] = P[r][c].sub(f.mul(P[i][c]));
+            log += `<div class="step-log"><span class="op-tag">Operating: R${r+1} &rarr; R${r+1} - (${f})R${i+1} on A & P</span><br>${renderTacMatrix(A)}</div>`;
+          }
+        }
+
+        // Column eliminations
+        for (let c = 0; c < s; c++) {
+          if (c !== i && !A[i][c].isZero()) {
+            const f = A[i][c];
+            for (let r = 0; r < s; r++) A[r][c] = A[r][c].sub(f.mul(A[r][i]));
+            for (let r = 0; r < s; r++) Q[r][c] = Q[r][c].sub(f.mul(Q[r][i]));
+            log += `<div class="step-log"><span class="op-tag">Operating: C${c+1} &rarr; C${c+1} - (${f})C${i+1} on A & Q</span><br>${renderTacMatrix(A)}</div>`;
+          }
+        }
+      }
+
+      log += `<div class="step-log success">`;
+      log += `<strong>[CANONICAL NORMAL FORM FINAL RESULTS]</strong><br><br>`;
+      log += `<strong>PAQ Normal Matrix = [ I_${rank} 0 ; 0 0 ]:</strong><br>${renderTacMatrix(A)}<br><br>`;
+      log += `<strong>Non-Singular Matrix P (Row Accumulator):</strong><br>${renderTacMatrix(P)}<br><br>`;
+      log += `<strong>Non-Singular Matrix Q (Column Accumulator):</strong><br>${renderTacMatrix(Q)}<br><br>`;
+      log += `<strong>HENCE, CANONICAL RANK &rho;(A) = <span style="color:var(--emerald); font-size:1.1rem;">${rank}</span></strong>`;
+      log += `</div>`;
+      document.getElementById('single-console').innerHTML = log;
+    }
+
+    /* -------------------------------------------------------------
+       TAB 3: SYSTEM [A | B] DIRECT INPUTS
+       ------------------------------------------------------------- */
+    function renderSysInputs() {
+      const rows = parseInt(document.getElementById('sys-rows').value, 10);
+      const cols = parseInt(document.getElementById('sys-cols').value, 10);
+      const isHomo = document.getElementById('sys-type').value === 'homo';
+
+      let html = '<table class="input-matrix-table"><tbody>';
+      for (let i = 0; i < rows; i++) {
+        html += '<tr>';
+        for (let j = 0; j < cols; j++) {
+          const def = (i === j) ? 2 : (i + j);
+          html += `<td><input type="text" id="sys-m-${i}-${j}" value="${def}"></td>`;
+        }
+        if (!isHomo) {
+          html += `<td><input type="text" class="aug" id="sys-b-${i}" value="${i * 3 + 2}"></td>`;
+        }
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+      document.getElementById('sys-matrix-container').innerHTML = html;
+    }
+
+    function randomizeSysInputs() {
+      AudioFX.click();
+      const rows = parseInt(document.getElementById('sys-rows').value, 10);
+      const cols = parseInt(document.getElementById('sys-cols').value, 10);
+      const isHomo = document.getElementById('sys-type').value === 'homo';
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          document.getElementById(`sys-m-${i}-${j}`).value = Math.floor(Math.random() * 7) - 2;
+        }
+        if (!isHomo) {
+          document.getElementById(`sys-b-${i}`).value = Math.floor(Math.random() * 9) + 1;
+        }
+      }
+    }
+
+    function executeSysDirect() {
+      AudioFX.play(800, 'triangle', 0.08);
+      const rows = parseInt(document.getElementById('sys-rows').value, 10);
+      const cols = parseInt(document.getElementById('sys-cols').value, 10);
+      const isHomo = document.getElementById('sys-type').value === 'homo';
+
+      const A = [];
+      const B = [];
+      const varNames = ['x', 'y', 'z', 'w'].slice(0, cols);
+
+      for (let i = 0; i < rows; i++) {
+        let r = [];
+        for (let j = 0; j < cols; j++) {
+          r.push(Frac.from(document.getElementById(`sys-m-${i}-${j}`).value));
+        }
+        A.push(r);
+        B.push(isHomo ? new Frac(0) : Frac.from(document.getElementById(`sys-b-${i}`).value));
+      }
+
+      solveLinearSystemWithFormalSteps(A, B, varNames, 'sys-console');
+    }
+
+    /* -------------------------------------------------------------
+       TAB 4: EXAM PRESETS VAULT
+       ------------------------------------------------------------- */
+    const ExamVault = [
+      {
+        text: `Discuss the consistency of the system and solve:
+2x - y + z = 9
+3x - y + z = 6
+4x - y + 2z = 7
+-x + y - z = 4`
+      },
+      {
+        text: `Test for consistency and solve if possible:
+x + 2y - z = 3
+3x - y + 2z = 1
+2x - 3y + 3z = 2
+x - 3y + 3z = 4`
+      },
+      {
+        text: `Find values of x, y, z satisfying the system:
+x + y + z = 6
+x + 2y + 3z = 14
+x + 4y + 7z = 30`
+      },
+      {
+        text: `Reduce matrix A to Normal Form PAQ and find rank:
+x + 2y + 3z = 0
+3x + 2y + z = 0
+2x + y + 3z = 0`
+      },
+      {
+        text: `Find non-trivial solutions for homogeneous system:
+2x + 3y - z = 0
+x - y - 2z = 0
+3x + 2y - 3z = 0`
+      }
+    ];
+
+    function loadPresetVault(idx) {
+      AudioFX.click();
+      document.getElementById('parser-input').value = ExamVault[idx].text;
+      routeTab(0);
+      executeUniversalParser();
+    }
+
+    /* -------------------------------------------------------------
+       TAB 5: WARGAME COMBAT ARENA (PROCEDURAL NON-REPEATING)
+       ------------------------------------------------------------- */
+    const CombatHub = {
+      score: 0,
+      streak: 0,
+      attempts: 0,
+      correct: 0,
+      timer: 25,
+      interval: null,
+      historyHashes: new Set(),
+      currentQ: null
+    };
+
+    function generateCombatProcedural(mode) {
+      let q = null;
+      let safetyCounter = 0;
+
+      while (safetyCounter < 120) {
+        safetyCounter++;
+        if (mode === 'rank') {
+          const targetRank = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3
+          let r1 = [
+            (Math.floor(Math.random() * 8) - 3) || 1,
+            Math.floor(Math.random() * 7) - 3,
+            Math.floor(Math.random() * 7) - 3
+          ];
+          let r2, r3;
+
+          if (targetRank === 1) {
+            const k1 = (Math.floor(Math.random() * 5) - 2) || 2;
+            const k2 = (Math.floor(Math.random() * 5) - 2) || -1;
+            r2 = r1.map(x => x * k1);
+            r3 = r1.map(x => x * k2);
+          } else if (targetRank === 2) {
+            do {
+              r2 = [
+                Math.floor(Math.random() * 7) - 3,
+                Math.floor(Math.random() * 7) - 3,
+                (Math.floor(Math.random() * 7) - 3) || 1
+              ];
+            } while (r2[0]*r1[1] === r1[0]*r2[1] && r2[1]*r1[2] === r1[1]*r2[2]);
+
+            const a = (Math.floor(Math.random() * 3) - 1) || 1;
+            const b = (Math.floor(Math.random() * 3) - 1) || -1;
+            r3 = [
+              a * r1[0] + b * r2[0],
+              a * r1[1] + b * r2[1],
+              a * r1[2] + b * r2[2]
+            ];
+          } else {
+            do {
+              r2 = [Math.floor(Math.random() * 7) - 3, Math.floor(Math.random() * 7) - 3, Math.floor(Math.random() * 7) - 3];
+              r3 = [Math.floor(Math.random() * 7) - 3, Math.floor(Math.random() * 7) - 3, Math.floor(Math.random() * 7) - 3];
+            } while (
+              (r1[0]*(r2[1]*r3[2] - r2[2]*r3[1]) -
+               r1[1]*(r2[0]*r3[2] - r2[2]*r3[0]) +
+               r1[2]*(r2[0]*r3[1] - r2[1]*r3[0])) === 0
+            );
+          }
+
+          const hash = `rank-${r1.join(',')}-${r2.join(',')}-${r3.join(',')}`;
+          if (!CombatHub.historyHashes.has(hash)) {
+            CombatHub.historyHashes.add(hash);
+            q = {
+              prompt: "IDENTIFY THE EXACT TACTICAL RANK &rho;(A):",
+              matrix: [r1, r2, r3],
+              answer: `${targetRank}`,
+              options: ['1', '2', '3'],
+              hint: `Inspect whether any rows are exact scalar multiples or linear combinations of one another.`
+            };
+            break;
+          }
+        } else if (mode === 'consistency') {
+          const types = ['Unique Solution', 'Infinite Solutions', 'Inconsistent'];
+          const chosen = types[Math.floor(Math.random() * types.length)];
+          let m = [];
+          if (chosen === 'Unique Solution') {
+            m = [
+              [1, 2, 1, 4],
+              [0, 3, 2, 5],
+              [0, 0, 2, 8]
+            ];
+          } else if (chosen === 'Infinite Solutions') {
+            m = [
+              [1, 2, -1, 3],
+              [0, 1, 4, 2],
+              [0, 0, 0, 0]
+            ];
+          } else {
+            m = [
+              [1, -1, 2, 4],
+              [0, 2, 3, 1],
+              [0, 0, 0, 5]
+            ];
+          }
+          const hash = `cons-${m.flat().join(',')}-${chosen}`;
+          if (!CombatHub.historyHashes.has(hash)) {
+            CombatHub.historyHashes.add(hash);
+            q = {
+              prompt: "CLASSIFY SYSTEM CONSISTENCY [A|B]:",
+              matrix: m,
+              isAug: true,
+              answer: chosen,
+              options: types,
+              hint: `Examine the bottom row: if coefficient row is [0, 0, 0] but augmented value is non-zero, it is Inconsistent.`
+            };
+            break;
+          }
+        } else {
+          // Pivot Strike
+          const p = Math.floor(Math.random() * 3) + 2;
+          const k = Math.floor(Math.random() * 3) + 2;
+          const target = p * k;
+          const m = [
+            [p, 1, -2],
+            [target, 4, 3],
+            [0, 2, 5]
+          ];
+          const correct = `R2 -> R2 - ${k}*R1`;
+          const hash = `piv-${m.flat().join(',')}`;
+          if (!CombatHub.historyHashes.has(hash)) {
+            CombatHub.historyHashes.add(hash);
+            q = {
+              prompt: `SELECT ROW OPERATION TO ELIMINATE ELEMENT AT (2, 1):`,
+              matrix: m,
+              answer: correct,
+              options: [
+                correct,
+                `R2 -> R2 + ${k}*R1`,
+                `R2 -> R2 - ${k+1}*R1`,
+                `R1 -> R1 - ${k}*R2`
+              ].sort(() => Math.random() - 0.5),
+              hint: `Pivot at R1 is ${p} and entry at R2 is ${target}. Multiplier is ${target}/${p} = ${k}.`
+            };
+            break;
+          }
+        }
+      }
+      return q;
+    }
+
+    function nextWargameTarget() {
+      clearInterval(CombatHub.interval);
+      const mode = document.getElementById('wargame-mode').value;
+      CombatHub.currentQ = generateCombatProcedural(mode);
+      CombatHub.timer = 25;
+
+      document.getElementById('wargame-hint-box').style.display = 'none';
+      const rep = document.getElementById('wargame-report');
+      rep.className = 'drill-report';
+      rep.innerHTML = '';
+
+      document.getElementById('wargame-prompt').innerHTML = CombatHub.currentQ.prompt;
+
+      const fracMat = CombatHub.currentQ.matrix.map(row => row.map(v => new Frac(v)));
+      const augCol = CombatHub.currentQ.isAug ? 3 : -1;
+      document.getElementById('wargame-matrix-view').innerHTML = renderTacMatrix(fracMat, augCol);
+
+      let opts = '';
+      CombatHub.currentQ.options.forEach(opt => {
+        opts += `<button class="btn-opt" onclick="submitWargameAnswer('${opt}', this)">${opt}</button>`;
+      });
+      document.getElementById('wargame-options').innerHTML = opts;
+
+      document.getElementById('drill-timer').innerText = `${CombatHub.timer}s`;
+      CombatHub.interval = setInterval(() => {
+        CombatHub.timer--;
+        document.getElementById('drill-timer').innerText = `${CombatHub.timer}s`;
+        if (CombatHub.timer <= 5) AudioFX.play(360, 'sawtooth', 0.04);
+        if (CombatHub.timer <= 0) {
+          clearInterval(CombatHub.interval);
+          handleWargameTimeout();
+        }
+      }, 1000);
+    }
+
+    function submitWargameAnswer(val, btn) {
+      clearInterval(CombatHub.interval);
+      CombatHub.attempts++;
+      const isCorrect = (val === CombatHub.currentQ.answer);
+      const rep = document.getElementById('wargame-report');
+
+      document.querySelectorAll('.btn-opt').forEach(b => {
+        b.disabled = true;
+        if (b.innerText === CombatHub.currentQ.answer) b.classList.add('pass');
+      });
+
+      if (isCorrect) {
+        AudioFX.strike();
+        CombatHub.correct++;
+        CombatHub.streak++;
+        CombatHub.score += (100 + CombatHub.streak * 25);
+        btn.classList.add('pass');
+        rep.className = 'drill-report pass active';
+        rep.innerHTML = `&check; <strong>TARGET NEUTRALIZED!</strong> Verified signature: <strong>${CombatHub.currentQ.answer}</strong>`;
+      } else {
+        AudioFX.miss();
+        CombatHub.streak = 0;
+        btn.classList.add('fail');
+        rep.className = 'drill-report fail active';
+        rep.innerHTML = `&cross; <strong>STRIKE MISSED!</strong> Correct classification: <strong>${CombatHub.currentQ.answer}</strong>.<br>${CombatHub.currentQ.hint}`;
+      }
+
+      updateCombatHUD();
+    }
+
+    function handleWargameTimeout() {
+      AudioFX.miss();
+      CombatHub.attempts++;
+      CombatHub.streak = 0;
+      const rep = document.getElementById('wargame-report');
+      rep.className = 'drill-report fail active';
+      rep.innerHTML = `&cross; <strong>STRIKE CLOCK EXPIRED!</strong> Target was: <strong>${CombatHub.currentQ.answer}</strong>.`;
+      document.querySelectorAll('.btn-opt').forEach(b => {
+        b.disabled = true;
+        if (b.innerText === CombatHub.currentQ.answer) b.classList.add('pass');
+      });
+      updateCombatHUD();
+    }
+
+    function updateCombatHUD() {
+      document.getElementById('drill-score').innerText = CombatHub.score;
+      document.getElementById('drill-streak').innerText = `${CombatHub.streak}🔥`;
+      const acc = CombatHub.attempts > 0 ? Math.round((CombatHub.correct / CombatHub.attempts) * 100) : 100;
+      document.getElementById('drill-acc').innerText = `${acc}%`;
+    }
+
+    function showWargameHint() {
+      AudioFX.play(600, 'sine', 0.05);
+      const h = document.getElementById('wargame-hint-box');
+      h.innerText = `💡 INTEL ADVISORY: ${CombatHub.currentQ.hint}`;
+      h.style.display = 'block';
+    }
+
+    /* -------------------------------------------------------------
+       INITIALIZATION
+       ------------------------------------------------------------- */
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSingleMatrixInputs();
+      renderSysInputs();
+      executeUniversalParser();
+    });
+  </script>
+</body>
+</html>
